@@ -1,3 +1,4 @@
+# setup
 library(stringr)
 library(RColorBrewer)
 
@@ -52,12 +53,13 @@ for (i in 1:num_bonds){
   }
 }
 
+# Question 4(a)
 yields <- array(dim=c(num_bonds,num_dates))
 for (i in 1:num_bonds){
   for (j in 1:num_dates){
     aux <- dirty_prices[i,j]
     l <- i-1
-    if (l > 1){
+    if (l > 0){
       for (k in 1:l){
         t <- num_days_to_maturity[k,j]/365
         aux <- aux - coupon_rates[i] * exp(-1 * yields[k,j] * t) / 2
@@ -76,6 +78,7 @@ for (i in 2:num_dates){
 }
 legend("topright", legend=dates, fill=colours, cex=0.5)
 
+#Question 4(b)
 freq <- 2
 
 spot_rates <- array(dim=c(num_bonds,num_dates))
@@ -83,7 +86,7 @@ for (i in 1:num_bonds){
   for (j in 1:num_dates){
     aux <- dirty_prices[i,j]
     l <- i-1
-    if (l > 1){
+    if (l > 0){
       for (k in 1:l){
         t <- num_days_to_maturity[k,j]/365
         aux <- aux - (coupon_rates[i]/2 * (1 + spot_rates[k,j]/freq)^(-t*freq))
@@ -94,14 +97,15 @@ for (i in 1:num_bonds){
     spot_rates[i,j] <- freq * ((aux / payout)^(-1/freq/T) - 1)
   }
 }
-plot(num_days_to_maturity[2:num_bonds,1]/365, 100*spot_rates[2:num_bonds,1], type='l', col=colours[1],
+plot(num_days_to_maturity[,1]/365, 100*spot_rates[,1], type='l', col=colours[1],
      xlab="Term (years)", ylab="Spot Rate (%)",
      ylim=c(3,5))
 for (i in 2:num_dates){
-  lines(num_days_to_maturity[2:num_bonds,i]/365, 100*spot_rates[2:num_bonds,i], type='l', col=colours[i])
+  lines(num_days_to_maturity[,i]/365, 100*spot_rates[,i], type='l', col=colours[i])
 }
 legend("topright", legend=dates, fill=colours, cex=0.5)
 
+#Question 4(c)
 n = 5
 
 interpolated_yields <- array(dim=c(n,num_dates))
@@ -121,14 +125,15 @@ for (i in 1:n-1){
     forward_rates[i,j] = (interpolated_yields[i+1,j]*(i+1) - interpolated_yields[1,j]) / i;
   }
 }
-plot(1:(n-1), 100*forward_rates[,1], type='l', col=colours[1],
-     xlab="Year X (in 1yr-Xyr forward rate)", ylab="Forward Rate (%)",
-     ylim=c(3,4))
+plot(2:(n), 100*forward_rates[,1], type='l', col=colours[1],
+     xlab="Term (years)", ylab="1-year Forward Rate (%)",
+     ylim=c(2.75,4.25))
 for (i in 2:num_dates){
-  lines(1:(n-1), 100*forward_rates[,i], type='l', col=colours[i])
+  lines(2:(n), 100*forward_rates[,i], type='l', col=colours[i])
 }
 legend("topright", legend=dates, fill=colours, cex=0.5)
 
+# Question 5
 X_yield = NULL
 for (i in 1:n){
   Xi <- array(dim=num_dates-1)
@@ -149,6 +154,7 @@ for (i in 1:(n-1)){
 }
 covariance_forward <- cov(X_forward)
 
+# Question 6
 spectral_yield <- eigen(covariance_yield)
 eigenvectors_yield <- spectral_yield$vectors
 eigenvalues_yield <- spectral_yield$values
